@@ -1,0 +1,146 @@
+<app-navbar></app-navbar>
+
+<main class="account">
+  <h1>Gestionar Cuenta</h1>
+  <p class="subtitle">Edita la información de tu empresa.</p>
+
+  <form (ngSubmit)="save()" #f="ngForm" class="form">
+    <!-- Identidad de la empresa -->
+    <section class="section">
+      <h2 class="section__title">Identidad de la empresa</h2>
+      <div class="form__grid">
+        <div class="form__field">
+          <label>Razón social <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="account.companyName" name="companyName" required />
+        </div>
+
+        <div class="form__field">
+          <label>Nombre comercial</label>
+          <input type="text" [(ngModel)]="account.tradeName" name="tradeName" />
+        </div>
+
+        <div class="form__field">
+          <label>RUC / NIT / CIF / NIF <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="account.taxId" name="taxId" required />
+        </div>
+
+        <div class="form__field">
+          <label>Tipo de empresa</label>
+          <select [(ngModel)]="account.companyType" name="companyType">
+            <option value="">Seleccione...</option>
+            <option *ngFor="let type of companyTypes" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <div class="form__field">
+          <label>Fecha de constitución</label>
+          <input type="date" [(ngModel)]="account.incorporationDate" name="incorporationDate" />
+        </div>
+
+        <div class="form__field">
+          <label>Sector</label>
+          <select [(ngModel)]="account.sector" name="sector">
+            <option value="">Seleccione...</option>
+            <option *ngFor="let s of sectors" [value]="s">{{ s }}</option>
+          </select>
+        </div>
+      </div>
+    </section>
+
+    <!-- Contacto -->
+    <section class="section">
+      <h2 class="section__title">Contacto</h2>
+      <div class="form__grid">
+        <div class="form__field">
+          <label>Email principal <span class="req">*</span></label>
+          <input type="email" [(ngModel)]="account.email" name="email" required />
+        </div>
+
+        <div class="form__field">
+          <label>Teléfono <span class="req">*</span></label>
+          <input type="tel" [(ngModel)]="account.phone" name="phone" required />
+        </div>
+
+        <div class="form__field form__field--full">
+          <label>Sitio web</label>
+          <input type="url" [(ngModel)]="account.website" name="website" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Dirección fiscal -->
+    <section class="section">
+      <h2 class="section__title">Dirección fiscal</h2>
+      <div class="form__grid">
+        <div class="form__field">
+          <label>País <span class="req">*</span></label>
+          <input type="text" [(ngModel)]="account.country" name="country" required />
+        </div>
+
+        <div class="form__field">
+          <label>Provincia / Estado / Departamento</label>
+          <input type="text" [(ngModel)]="account.state" name="state" />
+        </div>
+
+        <div class="form__field">
+          <label>Ciudad</label>
+          <input type="text" [(ngModel)]="account.city" name="city" />
+        </div>
+
+        <div class="form__field form__field--full">
+          <label>Dirección</label>
+          <input type="text" [(ngModel)]="account.address" name="address" />
+        </div>
+
+        <div class="form__field">
+          <label>Código postal</label>
+          <input type="text" [(ngModel)]="account.postalCode" name="postalCode" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Responsable -->
+    <section class="section">
+      <h2 class="section__title">Responsable</h2>
+      <div class="form__grid">
+        <div class="form__field">
+          <label>Persona de contacto</label>
+          <input type="text" [(ngModel)]="account.contactName" name="contactName" />
+        </div>
+
+        <div class="form__field">
+          <label>Cargo</label>
+          <input type="text" [(ngModel)]="account.contactRole" name="contactRole" />
+        </div>
+
+        <div class="form__field">
+          <label>Email de contacto</label>
+          <input type="email" [(ngModel)]="account.contactEmail" name="contactEmail" />
+        </div>
+
+        <div class="form__field">
+          <label>Teléfono de contacto</label>
+          <input type="tel" [(ngModel)]="account.contactPhone" name="contactPhone" />
+        </div>
+      </div>
+    </section>
+
+    <!-- Branding -->
+    <section class="section">
+      <h2 class="section__title">Branding</h2>
+      <div class="form__grid">
+        <div class="form__field form__field--full">
+          <label>Logotipo</label>
+          <input type="file" accept="image/*" (change)="onLogoSelected($event)" />
+          <div class="logo-preview" *ngIf="account.logoDataUrl">
+            <img [src]="account.logoDataUrl" alt="Logo" />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="form__actions">
+      <button type="submit" class="btn primary">Guardar</button>
+    </div>
+  </form>
+</main>

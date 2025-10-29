@@ -1,0 +1,58 @@
+# --- Global ---
+.DS_Store
+Thumbs.db
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.orig
+*.rej
+*.patch
+*.7z
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+
+# Node/Angular (frontend)
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.angular/cache/
+/frontend/.cache/
+/frontend/.parcel-cache/
+/frontend/.eslintcache
+/frontend/coverage/
+/frontend/.env.local
+/frontend/.env.*.local
+/frontend/npm-debug.log*
+/frontend/yarn-debug.log*
+/frontend/yarn-error.log*
+/frontend/package-lock.json
+/frontend/pnpm-lock.yaml
+/frontend/temp/
+
+# Python (backend)
+/Backend/__pycache__/
+/Backend/*.pyc
+/Backend/*.pyo
+/Backend/.pytest_cache/
+/Backend/.mypy_cache/
+/Backend/.venv/
+/Backend/venv/
+/Backend/env/
+/Backend/.env
+/Backend/.env.local
+
+# VS Code
+.vscode/
+.history/
+
+# OS
+$RECYCLE.BIN/
+System Volume Information/
+
+# Misc build artifacts
+**/build/
+**/out/
+**/.cache/

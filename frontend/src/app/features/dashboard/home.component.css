@@ -1,0 +1,16 @@
+.home {
+  padding: 1rem;
+}
+
+.home__header h1 {
+  margin: 0.5rem 0 0.25rem;
+  color: #1b3a57;
+}
+
+.card {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 10px;
+  background: #ffffff;
+  border: 1px solid #eaeaea;
+}

@@ -1,0 +1,30 @@
+<nav class="navbar">
+  <div class="navbar__brand" (click)="irInicio()">
+    <img src="images/Logotipo.png" alt="PymeCore" class="navbar__logo" />
+  </div>
+
+  <div class="navbar__spacer"></div>
+
+  <div class="navbar__actions">
+    <button class="profile-btn" (click)="toggleProfileMenu($event)" aria-label="Perfil">
+      <i class="fas fa-user-circle"></i>
+    </button>
+
+    <div class="dropdown" *ngIf="profileMenuOpen">
+      <a class="dropdown__item" (click)="irInicio()">
+        <i class="fas fa-home"></i>
+        Inicio
+      </a>
+      <div class="dropdown__divider"></div>
+      <a class="dropdown__item" (click)="gestionarCuenta()">
+        <i class="fas fa-cog"></i>
+        Gestionar Cuenta
+      </a>
+      <div class="dropdown__divider"></div>
+      <a class="dropdown__item dropdown__danger" (click)="cerrarSesion()">
+        <i class="fas fa-sign-out-alt"></i>
+        Cerrar sesión
+      </a>
+    </div>
+  </div>
+</nav>

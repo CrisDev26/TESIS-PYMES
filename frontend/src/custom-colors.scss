@@ -1,0 +1,45 @@
+// Paleta de colores personalizada para PYMES
+// Este archivo debe importarse ANTES de Bootstrap para sobrescribir variables
+
+:root {
+  // Colores principales
+  --color-azul: #006dc0;
+  --color-azure: #057dde;
+  --color-silver: #bbbfc2;
+  --color-white: #fdfefd;
+  --color-lapis: #005faa;
+  --color-silver-lake: #5f87ad;
+  --color-indigo: #01457d;
+
+  // Sobrescribir variables de Bootstrap ANTES de que se cargue
+  --bs-primary: #006dc0 !important;      // Azul principal
+  --bs-secondary: #5f87ad !important;    // Silver Lake Blue  
+  --bs-success: #057dde !important;      // Azure para éxito
+  --bs-info: #005faa !important;         // Lapis Lazuli
+  --bs-warning: #bbbfc2 !important;      // Silver para advertencias
+  --bs-danger: #01457d !important;       // Indigo para errores
+  --bs-light: #fdfefd !important;        // White
+  --bs-dark: #01457d !important;         // Indigo oscuro
+}
+
+// Clases de utilidad personalizadas
+.bg-azul { background-color: #006dc0 !important; }
+.bg-azure { background-color: #057dde !important; }
+.bg-silver { background-color: #bbbfc2 !important; }
+.bg-lapis { background-color: #005faa !important; }
+.bg-silver-lake { background-color: #5f87ad !important; }
+.bg-indigo { background-color: #01457d !important; }
+
+.text-azul { color: #006dc0 !important; }
+.text-azure { color: #057dde !important; }
+.text-silver { color: #bbbfc2 !important; }
+.text-lapis { color: #005faa !important; }
+.text-silver-lake { color: #5f87ad !important; }
+.text-indigo { color: #01457d !important; }
+
+.border-azul { border-color: #006dc0 !important; }
+.border-azure { border-color: #057dde !important; }
+.border-silver { border-color: #bbbfc2 !important; }
+.border-lapis { border-color: #005faa !important; }
+.border-silver-lake { border-color: #5f87ad !important; }
+.border-indigo { border-color: #01457d !important; }

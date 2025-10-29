@@ -1,0 +1,125 @@
+/* Paleta y base tipográfica */
+:host {
+  --brand: #1b3a57;
+  --brand-600: #164463;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --bg: #f8fafc;
+  --focus: #2563eb;
+  font-family: "Poppins", system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+}
+
+.account {
+  padding: 1.25rem;
+  background: var(--bg);
+  min-height: calc(100vh - 64px);
+}
+
+/* Contenedor centrado y ancho máximo */
+.form {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 1.25rem;
+  max-width: 1100px;
+  margin: 0 auto;
+  box-shadow: 0 10px 30px rgba(2, 6, 23, 0.05);
+}
+
+.subtitle {
+  color: var(--muted);
+  margin: 0 0 1rem 0;
+  text-align: center;
+}
+
+/* Secciones */
+.section { margin-top: 1.25rem; }
+.section__title {
+  margin: 0 0 0.75rem;
+  color: var(--brand);
+  font-size: 1.1rem;
+}
+.section + .section { border-top: 1px solid var(--line); padding-top: 1rem; }
+
+/* Grid de campos */
+.form__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1rem;
+}
+
+.form__field { display: flex; flex-direction: column; gap: 0.35rem; }
+.form__field--full { grid-column: 1 / -1; }
+
+label { color: #111827; font-weight: 600; font-size: 0.92rem; }
+
+/* Controles */
+.form__field input,
+.form__field select,
+.form__field textarea {
+  padding: 0.65rem 0.8rem;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #111827;
+  transition: border-color 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.form__field input:hover,
+.form__field select:hover,
+.form__field textarea:hover { background: #fafafa; }
+
+.form__field input:focus,
+.form__field select:focus,
+.form__field textarea:focus {
+  outline: none;
+  border-color: var(--focus);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+/* Estados de validación (Angular agrega clases ng-invalid/ng-touched) */
+input.ng-invalid.ng-touched,
+select.ng-invalid.ng-touched {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.15);
+}
+
+/* Previsualización de logo */
+.logo-preview { margin-top: 0.5rem; }
+.logo-preview img {
+  max-width: 180px;
+  height: auto;
+  border-radius: 10px;
+  border: 1px solid var(--line);
+  box-shadow: 0 6px 18px rgba(2, 6, 23, 0.06);
+}
+
+/* Acciones */
+.form__actions { margin-top: 0.75rem; display: flex; justify-content: flex-end; }
+.btn.primary {
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  padding: 0.65rem 1.1rem;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+.btn.primary:hover { background: var(--brand-600); box-shadow: 0 8px 20px rgba(2, 6, 23, 0.08); }
+.btn.primary:active { transform: translateY(1px); }
+.btn.primary:focus { outline: none; box-shadow: 0 0 0 3px rgba(27, 58, 87, 0.2); }
+
+.req { color: #b91c1c; }
+
+/* Responsivo */
+@media (max-width: 900px) {
+  .form { padding: 1rem; }
+}
+
+@media (max-width: 640px) {
+  .account { padding: 0.75rem; }
+  .form__grid { grid-template-columns: 1fr; }
+  .form__actions { justify-content: stretch; }
+  .btn.primary { width: 100%; }
+}
