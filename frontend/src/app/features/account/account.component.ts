@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, NgForm } from '@angular/forms';
 import { NavbarComponent } from '../../layout/navbar/navbar.component';
+import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
 
 interface AccountInfo {
   // Identidad
@@ -10,6 +11,8 @@ interface AccountInfo {
   taxId: string;                  // RUC/NIT/CIF/NIF
   companyType?: string;           // S.A., S.R.L., autónomo, etc.
   incorporationDate?: string;     // Fecha de constitución (YYYY-MM-DD)
+  avatarDataUrl?: string;         // Foto de perfil
+  displayName?: string;           // Nombre visible (empresa o persona)
 
   // Contacto
   email: string;                  // Email principal
@@ -39,11 +42,14 @@ interface AccountInfo {
 @Component({
   selector: 'app-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, NavbarComponent],
+  imports: [CommonModule, FormsModule, NavbarComponent, SidebarComponent],
   templateUrl: './account.component.html',
   styleUrl: './account.component.css'
 })
 export class AccountComponent {
+  // Sección activa (tabs sin scroll)
+  activeSection: 'identidad' | 'contacto' | 'direccion' | 'responsable' | 'branding' = 'identidad';
+
   account: AccountInfo = {
     // Identidad
     companyName: '',
@@ -51,6 +57,8 @@ export class AccountComponent {
     taxId: '',
     companyType: '',
     incorporationDate: '',
+    avatarDataUrl: '',
+    displayName: '',
 
     // Contacto
     email: '',
@@ -92,6 +100,53 @@ export class AccountComponent {
     }
   }
 
+  // Referencia al formulario para detectar cambios sin guardar
+  // (Angular la rellena después de que el template se inicializa)
+  @ViewChild('f') formRef?: NgForm;
+  @ViewChild('formNavRef') formNavRef?: ElementRef<HTMLElement>;
+
+  // Hover indicator para la navegación interna del formulario
+  formHoverVisible = false;
+  formHoverTop = 0;
+  formHoverHeight = 0;
+  get formHoverTransform(): string { return `translateY(${this.formHoverTop}px)`; }
+
+  onFormNavItemEnter(event: MouseEvent): void {
+    if (!this.formNavRef) return;
+    const el = event.currentTarget as HTMLElement;
+    const parent = this.formNavRef.nativeElement;
+    let offset = 0;
+    let node: HTMLElement | null = el;
+    while (node && node !== parent) {
+      offset += node.offsetTop;
+      node = node.offsetParent as HTMLElement | null;
+    }
+    this.formHoverTop = offset;
+    this.formHoverHeight = el.offsetHeight;
+    this.formHoverVisible = true;
+  }
+
+  onFormNavLeave(): void {
+    this.formHoverVisible = false;
+  }
+
+  get hasUnsavedChanges(): boolean { return !!this.formRef?.dirty; }
+
+  // Cambiar de sección preguntando por guardado si hay cambios
+  navigateSection(target: AccountComponent['activeSection']) {
+    if (this.activeSection === target) return;
+
+    if (this.hasUnsavedChanges) {
+      const shouldSave = window.confirm('Tienes cambios sin guardar. ¿Deseas guardarlos antes de cambiar de sección?');
+      if (shouldSave) {
+        this.save();
+        // El guardado por sí solo no limpia el estado sucio; lo marcamos manualmente
+        this.formRef?.form.markAsPristine();
+      }
+    }
+    this.activeSection = target;
+  }
+
   onLogoSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     const file = input.files?.[0];
@@ -100,6 +155,18 @@ export class AccountComponent {
     const reader = new FileReader();
     reader.onload = () => {
       this.account.logoDataUrl = reader.result as string;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  onAvatarSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = () => {
+      this.account.avatarDataUrl = reader.result as string;
     };
     reader.readAsDataURL(file);
   }

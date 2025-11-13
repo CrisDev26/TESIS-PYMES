@@ -1,7 +1,7 @@
 <nav class="navbar">
-  <div class="navbar__brand" (click)="irInicio()">
-    <img src="images/Logotipo.png" alt="PymeCore" class="navbar__logo" />
-  </div>
+  <button type="button" class="navbar__brand" (click)="irInicio()" aria-label="Ir a inicio">
+    <img src="assets/images/logo dark.png" alt="PymeCore" class="navbar__logo" />
+  </button>
 
   <div class="navbar__spacer"></div>
 
@@ -11,20 +11,20 @@
     </button>
 
     <div class="dropdown" *ngIf="profileMenuOpen">
-      <a class="dropdown__item" (click)="irInicio()">
+      <button type="button" class="dropdown__item" (click)="irInicio()">
         <i class="fas fa-home"></i>
         Inicio
-      </a>
+      </button>
       <div class="dropdown__divider"></div>
-      <a class="dropdown__item" (click)="gestionarCuenta()">
+      <button type="button" class="dropdown__item" (click)="gestionarCuenta()">
         <i class="fas fa-cog"></i>
         Gestionar Cuenta
-      </a>
+      </button>
       <div class="dropdown__divider"></div>
-      <a class="dropdown__item dropdown__danger" (click)="cerrarSesion()">
+      <button type="button" class="dropdown__item dropdown__danger" (click)="cerrarSesion()">
         <i class="fas fa-sign-out-alt"></i>
         Cerrar sesión
-      </a>
+      </button>
     </div>
   </div>
 </nav>

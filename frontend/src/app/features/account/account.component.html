@@ -1,13 +1,52 @@
 <app-navbar></app-navbar>
 
-<main class="account">
-  <h1>Gestionar Cuenta</h1>
-  <p class="subtitle">Edita la información de tu empresa.</p>
+<div class="layout">
+  <app-sidebar class="layout__sidebar"></app-sidebar>
 
-  <form (ngSubmit)="save()" #f="ngForm" class="form">
+  <main class="layout__content account">
+    <form (ngSubmit)="save()" #f="ngForm" class="form">
+      <div class="form__layout">
+        <aside class="form__sidenav" aria-label="Navegación del formulario">
+          <ul class="sidenav__list" #formNavRef (mouseleave)="onFormNavLeave()">
+            <div class="hover-indicator" [style.transform]="formHoverTransform" [style.height.px]="formHoverHeight" [style.opacity]="formHoverVisible ? 1 : 0"></div>
+            <li><button type="button" class="sidenav__link" [class.is-active]="activeSection==='identidad'" (mouseenter)="onFormNavItemEnter($event)" (click)="navigateSection('identidad')">Identidad</button></li>
+            <li><button type="button" class="sidenav__link" [class.is-active]="activeSection==='contacto'" (mouseenter)="onFormNavItemEnter($event)" (click)="navigateSection('contacto')">Contacto</button></li>
+            <li><button type="button" class="sidenav__link" [class.is-active]="activeSection==='direccion'" (mouseenter)="onFormNavItemEnter($event)" (click)="navigateSection('direccion')">Dirección</button></li>
+            <li><button type="button" class="sidenav__link" [class.is-active]="activeSection==='responsable'" (mouseenter)="onFormNavItemEnter($event)" (click)="navigateSection('responsable')">Responsable</button></li>
+            <li><button type="button" class="sidenav__link" [class.is-active]="activeSection==='branding'" (mouseenter)="onFormNavItemEnter($event)" (click)="navigateSection('branding')">Branding</button></li>
+          </ul>
+        </aside>
+
+        <div class="form__content">
+          <header class="account__header account__header--inline">
+            <h1 class="account__title">Gestionar Cuenta</h1>
+            <p class="subtitle">Edita la información de tu empresa.</p>
+          </header>
     <!-- Identidad de la empresa -->
-    <section class="section">
+    <section class="section" *ngIf="activeSection==='identidad'">
       <h2 class="section__title">Identidad de la empresa</h2>
+      <!-- Bloque de perfil: foto + nombres (primero en la sección) -->
+      <div class="profile">
+        <div class="profile__avatar">
+          <img *ngIf="account.avatarDataUrl; else noAvatar" [src]="account.avatarDataUrl" alt="Avatar" />
+          <ng-template #noAvatar>
+            <div class="avatar__placeholder" aria-hidden="true">{{ (account.displayName || account.companyName || 'P') | slice:0:1 }}</div>
+          </ng-template>
+        </div>
+        <div class="profile__fields">
+          <div class="form__grid form__grid--compact">
+            <div class="form__field">
+              <label>Foto de perfil</label>
+              <input type="file" accept="image/*" (change)="onAvatarSelected($event)" />
+            </div>
+            <div class="form__field">
+              <label>Nombre visible</label>
+              <input type="text" [(ngModel)]="account.displayName" name="displayName" placeholder="Nombre de empresa o persona" />
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="form__grid">
         <div class="form__field">
           <label>Razón social <span class="req">*</span></label>
@@ -48,7 +87,7 @@
     </section>
 
     <!-- Contacto -->
-    <section class="section">
+    <section class="section" *ngIf="activeSection==='contacto'">
       <h2 class="section__title">Contacto</h2>
       <div class="form__grid">
         <div class="form__field">
@@ -69,7 +108,7 @@
     </section>
 
     <!-- Dirección fiscal -->
-    <section class="section">
+    <section class="section" *ngIf="activeSection==='direccion'">
       <h2 class="section__title">Dirección fiscal</h2>
       <div class="form__grid">
         <div class="form__field">
@@ -100,7 +139,7 @@
     </section>
 
     <!-- Responsable -->
-    <section class="section">
+    <section class="section" *ngIf="activeSection==='responsable'">
       <h2 class="section__title">Responsable</h2>
       <div class="form__grid">
         <div class="form__field">
@@ -126,7 +165,7 @@
     </section>
 
     <!-- Branding -->
-    <section class="section">
+  <section class="section" *ngIf="activeSection==='branding'">
       <h2 class="section__title">Branding</h2>
       <div class="form__grid">
         <div class="form__field form__field--full">
@@ -139,8 +178,11 @@
       </div>
     </section>
 
-    <div class="form__actions">
-      <button type="submit" class="btn primary">Guardar</button>
-    </div>
-  </form>
-</main>
+          <div class="form__actions">
+            <button type="submit" class="btn primary">Guardar</button>
+          </div>
+        </div>
+      </div>
+    </form>
+  </main>
+</div>

@@ -1,5 +1,22 @@
-.home {
+
+/* Layout de dos columnas: sidebar + contenido */
+.layout {
+  display: flex;
+  min-height: calc(100vh - 56px); /* asumiendo navbar ~56px; ajustar si cambia */
+  height: calc(100vh - 56px);
+}
+
+.layout__sidebar {
+  flex: 0 0 auto;
+}
+
+.layout__content {
+  flex: 1 1 auto;
   padding: 1rem;
+}
+
+.home {
+  padding: 0;
 }
 
 .home__header h1 {

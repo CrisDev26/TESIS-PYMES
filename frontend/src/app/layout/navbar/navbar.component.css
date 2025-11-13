@@ -5,8 +5,8 @@
   display: flex;
   align-items: center;
   padding: 0.5rem 1rem;
-  background: #ffffff;
-  border-bottom: 1px solid #eaeaea;
+  background: #1e1e2d; /* color solicitado */
+  border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 
 .navbar__brand {
@@ -14,6 +14,10 @@
   align-items: center;
   gap: 0.5rem;
   cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  border-radius: 6px; /* para permitir hover suave */
 }
 
 .navbar__logo {
@@ -24,7 +28,7 @@
 
 .navbar__title {
   font-weight: 700;
-  color: #1b3a57;
+  color: #f8fafc;
 }
 
 .navbar__spacer {
@@ -42,8 +46,10 @@
   background: transparent;
   border: none;
   font-size: 1.5rem;
-  color: #1b3a57;
+  color: #f8fafc;
   cursor: pointer;
+  padding: 6px; /* espacio para ver el hover */
+  border-radius: 6px;
 }
 
 .dropdown {
@@ -67,10 +73,24 @@
   color: #374151;
   text-decoration: none;
   cursor: pointer;
+  background: transparent; /* sin fondo por defecto */
+  border: none; /* sin borde por defecto */
+  width: 100%;
+  text-align: left;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .dropdown__item:hover {
   background: #f3f4f6;
+}
+
+/* Hover y focus visibles solo como efecto, sin fondo por defecto */
+.navbar__brand:focus-visible,
+.profile-btn:focus-visible,
+.dropdown__item:focus-visible {
+  outline: 2px solid #2563eb; /* azul accesible */
+  outline-offset: 2px;
 }
 
 .dropdown__divider {

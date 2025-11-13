@@ -3,5 +3,4 @@
 /* Import custom colors BEFORE Bootstrap to override defaults */
 @import './custom-colors.scss';
 
-/* Import Bootstrap */
-@import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
+/* Bootstrap se inyecta desde angular.json para evitar duplicados */
