@@ -1,0 +1,482 @@
+<!-- Toast notification -->
+<div
+  class="toast"
+  *ngIf="toastMessage"
+  [ngClass]="{ 'toast-success': toastType === 'success', 'toast-error': toastType === 'error' }"
+>
+  {{ toastMessage }}
+</div>
+
+<app-navbar></app-navbar>
+
+<div class="layout">
+  <app-sidebar class="layout__sidebar"></app-sidebar>
+
+  <main class="layout__content account">
+    <form (ngSubmit)="saveUserProfile()" #f="ngForm" class="form">
+      <div class="form__layout">
+        <aside class="form__sidenav" aria-label="Navegación del formulario">
+          <!-- Navegación principal con tabs simples -->
+          <ul class="tabs-nav" #formNavRef (mouseleave)="onFormNavLeave()">
+            <div class="hover-indicator" [style.transform]="formHoverTransform" [style.height.px]="formHoverHeight" [style.opacity]="formHoverVisible ? 1 : 0"></div>
+            <li><button type="button" class="tab-link" [class.is-active]="activeSection==='usuario'" (mouseenter)="onFormNavItemEnter($event)" (click)="navigateSection('usuario')"><i class="fas fa-user"></i> Mi Perfil</button></li>
+            <li><button type="button" class="tab-link" [class.is-active]="activeSection==='empresa'" (mouseenter)="onFormNavItemEnter($event)" (click)="navigateSection('empresa')"><i class="fas fa-building"></i> Mi Empresa</button></li>
+          </ul>
+        </aside>
+
+        <div class="form__content">
+          <header class="account__header account__header--inline">
+            <h1 class="account__title">Gestionar Cuenta</h1>
+            <p class="subtitle">Edita tu información personal y de empresa.</p>
+          </header>
+
+          <!-- SECCIÓN: MI PERFIL (Usuario/Colaborador) - Vista Unificada -->
+          <section class="section" *ngIf="activeSection==='usuario'">
+            <h2 class="section__title">Mi Perfil</h2>
+            
+            <!-- Avatar y Foto -->
+            <div class="profile-card">
+              <div class="profile-header">
+                <div class="profile__avatar">
+                  <img *ngIf="userProfile.avatarDataUrl; else noAvatar" [src]="userProfile.avatarDataUrl" alt="Avatar" />
+                  <ng-template #noAvatar>
+                    <div class="avatar__placeholder" aria-hidden="true">
+                      {{ (userProfile.firstName || 'U') | slice:0:1 }}
+                    </div>
+                  </ng-template>
+                </div>
+                <div class="profile__upload">
+                  <label class="upload-label">
+                    <i class="fas fa-camera"></i> Cambiar foto
+                    <input type="file" accept="image/*" (change)="onAvatarSelected($event)" style="display: none;" />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Información Personal -->
+            <div class="form-group">
+              <h3 class="form-group__title"><i class="fas fa-user"></i> Datos Personales</h3>
+              <div class="form__grid">
+                <div class="form__field">
+                  <label>Nombres <span class="req">*</span></label>
+                  <input type="text" [(ngModel)]="userProfile.firstName" name="firstName" placeholder="Juan" required />
+                </div>
+
+                <div class="form__field">
+                  <label>Apellidos <span class="req">*</span></label>
+                  <input type="text" [(ngModel)]="userProfile.lastName" name="lastName" placeholder="Pérez" required />
+                </div>
+              </div>
+            </div>
+
+            <!-- Información de Contacto -->
+            <div class="form-group">
+              <h3 class="form-group__title"><i class="fas fa-address-book"></i> Información de Contacto</h3>
+              <div class="form__grid">
+                <div class="form__field">
+                  <label>Email <span class="req">*</span></label>
+                  <input type="email" [(ngModel)]="userProfile.email" name="email" placeholder="juan@ejemplo.com" required />
+                </div>
+
+                <div class="form__field">
+                  <label>Teléfono</label>
+                  <input type="tel" [(ngModel)]="userProfile.phone" name="phone" placeholder="+593 99 999 9999" />
+                </div>
+
+                <div class="form__field form__field--full">
+                  <label>Cargo / Posición</label>
+                  <input type="text" [(ngModel)]="userProfile.position" name="position" placeholder="Gerente General, Contador, etc." />
+                </div>
+              </div>
+            </div>
+
+            <!-- Configuración de Cuenta -->
+            <div class="form-group">
+              <h3 class="form-group__title"><i class="fas fa-cog"></i> Configuración de Cuenta</h3>
+              <div class="form__grid">
+                <div class="form__field">
+                  <label>Nombre de usuario <span class="req">*</span></label>
+                  <input type="text" [(ngModel)]="userProfile.username" name="username" placeholder="usuario123" required />
+                  <small class="field-hint">Tu nombre de usuario es único y se usa para iniciar sesión</small>
+                </div>
+              </div>
+
+              <!-- Estado de membresía -->
+              <div class="membership-card" *ngIf="companyInfo.id">
+                <div class="membership-header">
+                  <i class="fas fa-building"></i>
+                  <span>Estado en la Empresa</span>
+                </div>
+                <div class="membership-body">
+                  <div class="status-badge" [ngClass]="{
+                    'status--pending': membershipStatus === 'pending',
+                    'status--approved': membershipStatus === 'approved',
+                    'status--rejected': membershipStatus === 'rejected'
+                  }">
+                    {{ membershipStatus === 'pending' ? 'Pendiente de aprobación' : 
+                       membershipStatus === 'approved' ? 'Aprobado' : 'Rechazado' }}
+                  </div>
+                  <p class="membership-role">
+                    <i class="fas fa-shield-halved"></i>
+                    <strong>{{ isCompanyAdmin ? 'Administrador' : 'Colaborador' }}</strong>
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Botón de guardar -->
+            <div class="form__actions">
+              <button type="submit" class="btn primary btn-lg" [disabled]="!hasUnsavedChanges">
+                <i class="fas fa-save"></i> {{ hasUnsavedChanges ? 'Guardar Cambios' : 'Sin Cambios' }}
+              </button>
+            </div>
+          </section>
+
+          <!-- SECCIÓN: MI EMPRESA -->
+          <section class="section" *ngIf="activeSection==='empresa'">
+            <h2 class="section__title">Mi Empresa</h2>
+
+            <!-- MODO: Seleccionar o Crear -->
+            <div class="company-selector" *ngIf="companyMode==='select'">
+              <div class="selector-options">
+                <div class="search-box">
+                  <h3>Buscar Empresa por RUC</h3>
+                  <div class="search-input-group">
+                    <input 
+                      type="text" 
+                      [(ngModel)]="searchRuc" 
+                      name="searchRuc"
+                      placeholder="Ingrese RUC (13 dígitos)" 
+                      maxlength="13"
+                      pattern="\d{13}"
+                    />
+                    <button type="button" class="btn secondary" (click)="searchCompanyByRuc()">
+                      Buscar
+                    </button>
+                  </div>
+                  <small class="field-hint">El RUC debe tener exactamente 13 dígitos</small>
+                </div>
+
+                <div class="divider">
+                  <span>o</span>
+                </div>
+
+                <div class="company-list" *ngIf="availableCompanies.length > 0">
+                  <h3>Seleccionar Empresa Existente</h3>
+                  <div class="companies-grid">
+                    <div 
+                      class="company-card" 
+                      *ngFor="let company of availableCompanies"
+                      (click)="selectCompany(company)"
+                    >
+                      <div class="company-logo" *ngIf="company.logo_url">
+                        <img [src]="company.logo_url" [alt]="company.legal_name" />
+                      </div>
+                      <div class="company-info">
+                        <h4>{{ company.display_name || company.legal_name }}</h4>
+                        <p class="company-ruc">RUC: {{ company.tax_id }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="divider">
+                  <span>o</span>
+                </div>
+
+                <div class="create-new">
+                  <button type="button" class="btn primary" (click)="setCompanyMode('create')">
+                    + Crear Nueva Empresa
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- MODO: Crear o Editar Empresa -->
+            <div class="company-form" *ngIf="companyMode==='create' || companyMode==='edit'">
+              <div class="form-header">
+                <h3>{{ companyMode === 'create' ? 'Registrar Nueva Empresa' : 'Información de la Empresa' }}</h3>
+                <button 
+                  type="button" 
+                  class="btn text" 
+                  (click)="setCompanyMode('select')"
+                  *ngIf="companyMode==='create'"
+                >
+                  ← Volver a selección
+                </button>
+              </div>
+
+              <!-- Logo de Empresa -->
+              <div class="form__field logo-upload">
+                <label>Logo de la Empresa</label>
+                <div class="logo-preview">
+                  <div class="logo-circle" *ngIf="!companyInfo.logoDataUrl">
+                    <span>Logo</span>
+                  </div>
+                  <img *ngIf="companyInfo.logoDataUrl" [src]="companyInfo.logoDataUrl" alt="Logo" />
+                </div>
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  (change)="onLogoSelected($event)"
+                  [disabled]="companyMode==='edit' && !isCompanyAdmin"
+                />
+                <small class="field-hint">Tamaño recomendado: 200x200px</small>
+              </div>
+
+              <!-- Información Legal -->
+              <div class="form-section">
+                <h4 class="form-section-title">Información Legal</h4>
+                <div class="form__grid">
+                  <div class="form__field">
+                    <label>RUC <span class="req">*</span></label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="companyInfo.ruc" 
+                      name="ruc"
+                      placeholder="1234567890001" 
+                      maxlength="13"
+                      pattern="\d{13}"
+                      required
+                      [disabled]="companyMode==='edit'"
+                    />
+                    <small class="field-hint">El RUC no puede modificarse después del registro</small>
+                  </div>
+
+                  <div class="form__field">
+                    <label>Razón Social <span class="req">*</span></label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="companyInfo.legalName" 
+                      name="legalName"
+                      placeholder="EMPRESA S.A." 
+                      required
+                      [disabled]="companyMode==='edit' && !isCompanyAdmin"
+                    />
+                  </div>
+
+                  <div class="form__field">
+                    <label>Nombre Comercial</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="companyInfo.tradeName" 
+                      name="tradeName"
+                      placeholder="Mi Negocio"
+                      [disabled]="companyMode==='edit' && !isCompanyAdmin"
+                    />
+                  </div>
+
+                  <div class="form__field">
+                    <label>Nombre para Mostrar</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="companyInfo.displayName" 
+                      name="displayName"
+                      placeholder="Mi Empresa"
+                      [disabled]="companyMode==='edit' && !isCompanyAdmin"
+                    />
+                  </div>
+
+                  <div class="form__field">
+                    <label>Fecha de Constitución</label>
+                    <input 
+                      type="date" 
+                      [(ngModel)]="companyInfo.incorporationDate" 
+                      name="incorporationDate"
+                      [disabled]="companyMode==='edit' && !isCompanyAdmin"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Información de Contacto -->
+              <div class="form-section">
+                <h4 class="form-section-title">Información de Contacto</h4>
+                <div class="form__grid">
+                  <div class="form__field">
+                    <label>Correo Electrónico <span class="req">*</span></label>
+                    <input 
+                      type="email" 
+                      [(ngModel)]="companyInfo.email" 
+                      name="companyEmail"
+                      placeholder="contacto@empresa.com" 
+                      required
+                      [disabled]="companyMode==='edit' && !isCompanyAdmin"
+                    />
+                  </div>
+
+                  <div class="form__field">
+                    <label>Teléfono</label>
+                    <input 
+                      type="tel" 
+                      [(ngModel)]="companyInfo.phone" 
+                      name="companyPhone"
+                      placeholder="+593 99 999 9999"
+                      [disabled]="companyMode==='edit' && !isCompanyAdmin"
+                    />
+                  </div>
+
+                  <div class="form__field full-width">
+                    <label>Sitio Web</label>
+                    <input 
+                      type="url" 
+                      [(ngModel)]="companyInfo.website" 
+                      name="website"
+                      placeholder="https://www.empresa.com"
+                      [disabled]="companyMode==='edit' && !isCompanyAdmin"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Ubicación -->
+              <div class="form-section">
+                <h4 class="form-section-title">Ubicación</h4>
+                <div class="form__grid">
+                  <div class="form__field">
+                    <label>País</label>
+                    <select 
+                      [(ngModel)]="companyInfo.countryId" 
+                      name="countryId"
+                      (ngModelChange)="onCountryChange()"
+                      [disabled]="companyMode==='edit' && !isCompanyAdmin"
+                    >
+                      <option [value]="0">Seleccione un país</option>
+                      <option *ngFor="let country of countries" [value]="country.id">
+                        {{ country.name }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="form__field">
+                    <label>Provincia</label>
+                    <select 
+                      [(ngModel)]="companyInfo.provinceId" 
+                      name="provinceId"
+                      (ngModelChange)="onProvinceChange()"
+                      [disabled]="companyMode==='edit' && !isCompanyAdmin || companyInfo.countryId === 0"
+                    >
+                      <option [value]="0">Seleccione una provincia</option>
+                      <option *ngFor="let province of provinces" [value]="province.id">
+                        {{ province.name }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="form__field">
+                    <label>Ciudad</label>
+                    <select 
+                      [(ngModel)]="companyInfo.cityId" 
+                      name="cityId"
+                      [disabled]="companyMode==='edit' && !isCompanyAdmin || companyInfo.provinceId === 0"
+                    >
+                      <option [value]="0">Seleccione una ciudad</option>
+                      <option *ngFor="let city of cities" [value]="city.id">
+                        {{ city.name }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="form__field full-width">
+                    <label>Dirección</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="companyInfo.addressLine" 
+                      name="addressLine"
+                      placeholder="Calle Principal #123 y Secundaria"
+                      [disabled]="companyMode==='edit' && !isCompanyAdmin"
+                    />
+                  </div>
+
+                  <div class="form__field">
+                    <label>Código Postal</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="companyInfo.postalCode" 
+                      name="postalCode"
+                      placeholder="170101"
+                      [disabled]="companyMode==='edit' && !isCompanyAdmin"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <!-- Botones de Acción -->
+              <div class="form__actions">
+                <button 
+                  type="button" 
+                  class="btn primary" 
+                  (click)="saveCompany()"
+                  *ngIf="companyMode==='create' || (companyMode==='edit' && isCompanyAdmin)"
+                >
+                  {{ companyMode === 'create' ? 'Crear Empresa' : 'Guardar Cambios' }}
+                </button>
+                <button 
+                  type="button" 
+                  class="btn secondary" 
+                  (click)="setCompanyMode('select')"
+                >
+                  Cancelar
+                </button>
+              </div>
+
+              <!-- Mensaje de solo lectura -->
+              <div class="readonly-notice" *ngIf="companyMode==='edit' && !isCompanyAdmin">
+                <p>⚠️ No tienes permisos de administrador para editar la información de la empresa.</p>
+                <p>Contacta al administrador de la empresa si necesitas realizar cambios.</p>
+              </div>
+
+              <!-- Gestión de Miembros (solo para administradores) -->
+              <div class="members-section" *ngIf="companyMode==='edit' && isCompanyAdmin">
+                <div class="divider">
+                  <span>Gestión de Miembros</span>
+                </div>
+                
+                <div class="pending-users-list" *ngIf="pendingUsers.length > 0">
+                  <h5 style="margin: 0 0 1rem; color: var(--brand); font-size: 0.95rem;">Solicitudes Pendientes ({{ pendingUsers.length }})</h5>
+                  <div class="pending-user-card" *ngFor="let user of pendingUsers">
+                    <div class="user-info">
+                      <div class="user-avatar">
+                        {{ (user.first_name?.[0] || '') + (user.last_name?.[0] || '') }}
+                      </div>
+                      <div class="user-details">
+                        <h5>{{ user.first_name }} {{ user.last_name }}</h5>
+                        <p class="user-email">{{ user.email }}</p>
+                        <p class="user-position" *ngIf="user.position">{{ user.position }}</p>
+                      </div>
+                    </div>
+                    <div class="user-actions">
+                      <button 
+                        type="button"
+                        class="btn btn-sm success" 
+                        (click)="approveMembership(user.id, true)"
+                        title="Aprobar solicitud"
+                      >
+                        ✓ Aprobar
+                      </button>
+                      <button 
+                        type="button"
+                        class="btn btn-sm danger" 
+                        (click)="approveMembership(user.id, false)"
+                        title="Rechazar solicitud"
+                      >
+                        ✗ Rechazar
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="pendingUsers.length === 0" style="padding: 1.5rem; text-align: center; color: #6b7280; background: #f9fafb; border-radius: 8px;">
+                  <p style="margin: 0;">No hay solicitudes pendientes en este momento.</p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+
+        </div>
+      </div>
+    </form>
+  </main>
+</div>

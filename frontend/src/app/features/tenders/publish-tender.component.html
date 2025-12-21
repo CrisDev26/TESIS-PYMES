@@ -1,0 +1,120 @@
+<div *ngIf="modalService.publishTenderModal$ | async" class="publish-overlay" (click)="onCancel()">
+  <!-- Toast notification -->
+  <div class="toast" [class.show]="toastMessage" [class.success]="toastType === 'success'" 
+       [class.error]="toastType === 'error'" [class.info]="toastType === 'info'">
+    {{ toastMessage }}
+  </div>
+
+  <div class="publish-modal" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h1><i class="fas fa-plus-circle"></i> Publicar Licitación</h1>
+      <button type="button" class="btn-close" (click)="onCancel()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <form (ngSubmit)="onSubmit()" class="tender-form">
+      <!-- Información Básica -->
+      <div class="form-section">
+        <div class="form-group required">
+          <label for="title">Título de la Licitación</label>
+          <input 
+            type="text" 
+            id="title" 
+            [(ngModel)]="tender.title"
+            name="title"
+            placeholder="Ej: Suministro de equipos de computación"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="description">Descripción</label>
+          <textarea 
+            id="description" 
+            [(ngModel)]="tender.description"
+            name="description"
+            rows="3"
+            placeholder="Describe los detalles de la licitación..."
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="main_category">Categoría</label>
+            <select id="main_category" [(ngModel)]="tender.main_category" name="main_category">
+              <option value="">Seleccionar</option>
+              <option *ngFor="let cat of categories" [value]="cat.value">
+                {{ cat.label }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="budget_amount">Presupuesto (USD)</label>
+            <input 
+              type="number" 
+              id="budget_amount" 
+              [(ngModel)]="tender.budget_amount"
+              name="budget_amount"
+              placeholder="0.00"
+              step="0.01"
+              min="0"
+            />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="tender_start_date">Fecha de Inicio</label>
+            <input 
+              type="date" 
+              id="tender_start_date" 
+              [(ngModel)]="tender.tender_start_date"
+              name="tender_start_date"
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="tender_end_date">Fecha de Cierre</label>
+            <input 
+              type="date" 
+              id="tender_end_date" 
+              [(ngModel)]="tender.tender_end_date"
+              name="tender_end_date"
+            />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="buyer_name">Entidad Contratante (opcional)</label>
+          <input 
+            type="text" 
+            id="buyer_name" 
+            [(ngModel)]="tender.buyer_name"
+            name="buyer_name"
+            placeholder="Nombre de la entidad que solicita"
+          />
+        </div>
+      </div>
+
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="error-banner">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ errorMessage }}
+      </div>
+
+      <!-- Botones de acción -->
+      <div class="form-actions">
+        <button type="button" class="btn btn-secondary" (click)="onCancel()" [disabled]="isSubmitting">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="isSubmitting">
+          <i class="fas" [class.fa-spinner]="isSubmitting" [class.fa-spin]="isSubmitting" 
+             [class.fa-check]="!isSubmitting"></i>
+          {{ isSubmitting ? 'Publicando...' : 'Publicar' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

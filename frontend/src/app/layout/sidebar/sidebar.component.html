@@ -1,0 +1,73 @@
+<aside class="sidebar" [class.sidebar--collapsed]="collapsed" aria-label="Barra lateral de navegación">
+  <div class="sidebar__header">
+    <button type="button" class="icon-btn" (click)="toggleSidebar()" [attr.aria-expanded]="!collapsed" aria-label="Alternar barra lateral">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <nav class="sidebar__nav" role="navigation">
+    <ul class="menu" #menuRef (mouseleave)="onMenuLeave()">
+      <div class="hover-indicator" [style.transform]="hoverTransform" [style.height.px]="hoverHeight" [style.opacity]="hoverVisible ? 1 : 0"></div>
+      <li class="menu__item menu__item--highlight">
+        <button type="button" class="menu__link menu__link--cta" (click)="openPublishModal()" (mouseenter)="onItemEnter($event)" [attr.title]="collapsed ? 'Publicar Licitación' : null">
+          <i class="fas fa-plus-circle"></i>
+          <span class="menu__text" *ngIf="!collapsed">Publicar Licitación</span>
+        </button>
+      </li>
+      <li class="menu__section" *ngIf="!collapsed">Principal</li>
+      <li class="menu__item">
+        <a class="menu__link" [routerLink]="'/home'" routerLinkActive="menu__link--active" [routerLinkActiveOptions]="{ exact: true }" (mouseenter)="onItemEnter($event)" [attr.title]="collapsed ? 'Inicio' : null">
+          <i class="fas fa-home"></i>
+          <span class="menu__text" *ngIf="!collapsed">Inicio</span>
+        </a>
+      </li>
+      <li class="menu__item">
+        <a class="menu__link" [routerLink]="'/dashboard'" routerLinkActive="menu__link--active" (mouseenter)="onItemEnter($event)" [attr.title]="collapsed ? 'Dashboard' : null">
+          <i class="fas fa-gauge"></i>
+          <span class="menu__text" *ngIf="!collapsed">Dashboard</span>
+        </a>
+      </li>
+      <li class="menu__item">
+        <a class="menu__link" [routerLink]="'/licitaciones'" routerLinkActive="menu__link--active" (mouseenter)="onItemEnter($event)" [attr.title]="collapsed ? 'Mis Licitaciones' : null">
+          <i class="fas fa-file-contract"></i>
+          <span class="menu__text" *ngIf="!collapsed">Mis Licitaciones</span>
+        </a>
+      </li>
+      <li class="menu__item">
+        <a class="menu__link" [routerLink]="'/mis-participaciones'" routerLinkActive="menu__link--active" (mouseenter)="onItemEnter($event)" [attr.title]="collapsed ? 'Mis Participaciones' : null">
+          <i class="fas fa-handshake"></i>
+          <span class="menu__text" *ngIf="!collapsed">Mis Participaciones</span>
+        </a>
+      </li>
+      <li class="menu__item">
+        <a class="menu__link" [routerLink]="'/configuracion'" routerLinkActive="menu__link--active" (mouseenter)="onItemEnter($event)" [attr.title]="collapsed ? 'Configuración' : null">
+          <i class="fas fa-gear"></i>
+          <span class="menu__text" *ngIf="!collapsed">Configuración</span>
+        </a>
+      </li>
+
+      <li class="menu__section" *ngIf="!collapsed">Reportes</li>
+      <li class="menu__item" [class.menu__item--open]="open.reportes">
+        <button type="button" class="menu__link" (click)="toggle('reportes')" [attr.aria-expanded]="open.reportes" (mouseenter)="onItemEnter($event)" [attr.title]="collapsed ? 'Reportes' : null">
+          <i class="fas fa-chart-line"></i>
+          <span class="menu__text" *ngIf="!collapsed">Reportes</span>
+          <i class="fas fa-chevron-down menu__chevron" *ngIf="!collapsed" [class.rotate]="open.reportes"></i>
+        </button>
+        <ul class="submenu" [style.maxHeight]="open.reportes && !collapsed ? '500px' : '0px'" [attr.aria-hidden]="!(open.reportes && !collapsed)">
+          <li><a href="#" class="submenu__link">Mensuales</a></li>
+          <li><a href="#" class="submenu__link">Anuales</a></li>
+        </ul>
+      </li>
+    </ul>
+  </nav>
+  <div class="sidebar__footer">
+    <div class="presence" *ngIf="!collapsed">
+      <span class="presence__dot" [class.online]="isOnline"></span>
+      <span class="presence__text">{{ isOnline ? 'En línea' : 'Desconectado' }}</span>
+    </div>
+    <button class="logout-btn" (click)="logout()" [attr.title]="collapsed ? 'Cerrar sesión' : null">
+      <i class="fas fa-right-from-bracket"></i>
+      <span *ngIf="!collapsed">Cerrar sesión</span>
+    </button>
+  </div>
+</aside>

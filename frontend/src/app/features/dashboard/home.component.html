@@ -1,0 +1,258 @@
+<app-navbar></app-navbar>
+<div class="dash">
+  <app-sidebar class="dash__sidebar"></app-sidebar>
+  <main class="dash__content">
+    <header class="dash__header">
+      <h1>Inicio - Licitaciones Disponibles</h1>
+      <p class="muted">Busca por palabra clave, categoría y presupuesto. Mostrando datos reales de SERCOP Ecuador.</p>
+    </header>
+
+    <section class="filters">
+      <div class="toolbar">
+        <div class="tool tool--icon tool--grow">
+          <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="text" [(ngModel)]="q" name="q" placeholder="Buscar por título, entidad o OCID" aria-label="Búsqueda" />
+          <button type="button" class="clear" *ngIf="q" (click)="clearQ()" aria-label="Limpiar búsqueda"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="tool tool--icon" #catBox>
+          <i class="fas fa-tags" aria-hidden="true"></i>
+          <button type="button" class="dropdown__toggle" (click)="toggleCatMenu()" [attr.aria-expanded]="catOpen" aria-haspopup="listbox" aria-label="Categoría">
+            {{ category ? category : 'Todas las categorías' }}
+            <i class="fas fa-chevron-down dropdown__caret" aria-hidden="true"></i>
+          </button>
+          <div class="dropdown__menu" *ngIf="catOpen" role="listbox" aria-label="Lista de categorías">
+            <button type="button" class="dropdown__item" (click)="selectCategory('')" role="option" [attr.aria-selected]="!category">
+              Todas las categorías
+            </button>
+            <button type="button" class="dropdown__item" *ngFor="let c of categories" (click)="selectCategory(c)" role="option" [attr.aria-selected]="category===c">
+              {{ c }}
+            </button>
+          </div>
+        </div>
+
+        <div class="tool tool--icon tool--narrow">
+          <i class="fas fa-sack-dollar" aria-hidden="true"></i>
+          <input type="number" [(ngModel)]="minBudget" name="minBudget" min="0" placeholder="Mín. presupuesto" aria-label="Presupuesto mínimo" />
+        </div>
+        <div class="tool tool--icon tool--narrow">
+          <i class="fas fa-sack-dollar" aria-hidden="true"></i>
+          <input type="number" [(ngModel)]="maxBudget" name="maxBudget" min="0" placeholder="Máx. presupuesto" aria-label="Presupuesto máximo" />
+        </div>
+
+        <div class="pill-group">
+          <button type="button" class="pill" [class.is-active]="showOpen" (click)="toggleStatus('open')">
+            Abiertas <span class="count-mini">{{ openResults.length }}</span>
+          </button>
+          <button type="button" class="pill" [class.is-active]="showClosed" (click)="toggleStatus('closed')">
+            Cerradas <span class="count-mini">{{ closedResults.length }}</span>
+          </button>
+        </div>
+
+        <div class="spacer"></div>
+
+        <button type="button" class="btn ghost" (click)="resetFilters()">Restablecer</button>
+      </div>
+
+      <div class="chips" *ngIf="hasActiveFilters()">
+        <span class="chip" *ngIf="q">{{ q }} <button type="button" (click)="clearQ()" aria-label="Quitar"><i class="fas fa-times"></i></button></span>
+        <span class="chip" *ngIf="category">{{ category }} <button type="button" (click)="clearCategory()" aria-label="Quitar"><i class="fas fa-times"></i></button></span>
+        <span class="chip" *ngIf="minBudget != null">Min: {{ minBudget }} <button type="button" (click)="clearMin()" aria-label="Quitar"><i class="fas fa-times"></i></button></span>
+        <span class="chip" *ngIf="maxBudget != null">Max: {{ maxBudget }} <button type="button" (click)="clearMax()" aria-label="Quitar"><i class="fas fa-times"></i></button></span>
+      </div>
+    </section>
+
+    <section class="results">
+      <div class="results__group">
+        <h2>Abiertas <span class="count">{{ openResults.length }}</span></h2>
+        <div class="cards" *ngIf="openResults.length; else emptyOpen">
+          <article class="card card--open" *ngFor="let t of openResults">
+            <header class="card__header">
+              <span class="badge badge--open">Abierta</span>
+              <h3 class="card__title">{{ t.title }}</h3>
+            </header>
+            <ul class="meta">
+              <li><i class="fas fa-id-badge"></i> {{ t.external_id }}</li>
+              <li><i class="fas fa-building"></i> {{ t.buyer_name }}</li>
+              <li><i class="fas fa-sack-dollar"></i> {{ formatMoney(t.budget_amount) }}</li>
+              <li><i class="fas fa-tags"></i> {{ t.main_category }}</li>
+              <li><i class="fas fa-users"></i> {{ t.number_of_tenderers }} participantes</li>
+              <li><i class="fas fa-clock"></i> {{ t.tender_duration_days }} días</li>
+              <li><i class="fas fa-calendar-plus"></i> Publicada: {{ t.tender_start_date | date:'mediumDate' }}</li>
+              <li><i class="fas fa-calendar-check"></i> Cierra: {{ t.tender_end_date | date:'mediumDate' }}</li>
+            </ul>
+            <footer class="card__footer">
+              <button class="btn primary">Ver detalle</button>
+              <button class="btn" (click)="getAIRecommendation(t)" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <i class="fas fa-robot"></i> Recomendación IA
+              </button>
+            </footer>
+          </article>
+        </div>
+        <ng-template #emptyOpen>
+          <div class="empty">Sin licitaciones abiertas para los filtros.</div>
+        </ng-template>
+      </div>
+
+      <div class="results__group">
+        <h2>Cerradas <span class="count">{{ closedResults.length }}</span></h2>
+        <div class="cards" *ngIf="closedResults.length; else emptyClosed">
+          <article class="card card--closed" *ngFor="let t of closedResults">
+            <header class="card__header">
+              <span class="badge badge--closed">Cerrada</span>
+              <h3 class="card__title">{{ t.title }}</h3>
+            </header>
+            <ul class="meta">
+              <li><i class="fas fa-id-badge"></i> {{ t.external_id }}</li>
+              <li><i class="fas fa-building"></i> {{ t.buyer_name }}</li>
+              <li><i class="fas fa-sack-dollar"></i> {{ formatMoney(t.budget_amount) }}</li>
+              <li><i class="fas fa-tags"></i> {{ t.main_category }}</li>
+              <li><i class="fas fa-users"></i> {{ t.number_of_tenderers }} participantes</li>
+              <li><i class="fas fa-clock"></i> {{ t.tender_duration_days }} días</li>
+              <li><i class="fas fa-calendar-plus"></i> Publicada: {{ t.tender_start_date | date:'mediumDate' }}</li>
+            </ul>
+            <footer class="card__footer">
+              <button class="btn">Ver detalle</button>
+              <button class="btn" (click)="getAIRecommendation(t)" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
+                <i class="fas fa-robot"></i> Recomendación IA
+              </button>
+            </footer>
+          </article>
+        </div>
+        <ng-template #emptyClosed>
+          <div class="empty">Sin licitaciones cerradas para los filtros.</div>
+        </ng-template>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Modal de Recomendación IA -->
+<div class="modal-overlay" *ngIf="showAIModal" (click)="closeAIModal()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <header class="modal-header">
+      <h2><i class="fas fa-robot"></i> Recomendación IA - CatBoost + GPT</h2>
+      <button class="btn-close" (click)="closeAIModal()" aria-label="Cerrar">
+        <i class="fas fa-times"></i>
+      </button>
+    </header>
+
+    <div class="modal-body" *ngIf="selectedTender">
+      <!-- Información de la licitación -->
+      <section class="tender-info">
+        <h3>{{ selectedTender.title }}</h3>
+        <div class="info-grid">
+          <div class="info-item">
+            <i class="fas fa-building"></i>
+            <span>{{ selectedTender.buyer_name }}</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-sack-dollar"></i>
+            <span>Presupuesto: {{ formatMoney(selectedTender.budget_amount) }}</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-users"></i>
+            <span>{{ selectedTender.number_of_tenderers }} participantes</span>
+          </div>
+          <div class="info-item">
+            <i class="fas fa-tags"></i>
+            <span>{{ selectedTender.main_category }}</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Formulario de oferta -->
+      <section class="bid-form" *ngIf="!predictionResult">
+        <h4>Ingresa los datos de tu oferta</h4>
+        <div class="form-group">
+          <label for="bidAmount">Monto de oferta (USD)</label>
+          <input 
+            type="number" 
+            id="bidAmount" 
+            [(ngModel)]="bidAmount" 
+            [max]="selectedTender.budget_amount"
+            min="0"
+            step="0.01"
+            class="form-control"
+          />
+          <small class="form-hint">
+            Presupuesto referencial: {{ formatMoney(selectedTender.budget_amount) }}
+          </small>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="contractStart">Fecha inicio contrato</label>
+            <input 
+              type="date" 
+              id="contractStart" 
+              [(ngModel)]="contractStartDate"
+              class="form-control"
+            />
+          </div>
+          <div class="form-group">
+            <label for="contractEnd">Fecha fin contrato</label>
+            <input 
+              type="date" 
+              id="contractEnd" 
+              [(ngModel)]="contractEndDate"
+              class="form-control"
+            />
+          </div>
+        </div>
+
+        <button 
+          class="btn btn-ai btn-large" 
+          (click)="requestPrediction()"
+          [disabled]="isLoadingPrediction || bidAmount <= 0"
+          *ngIf="!isLoadingPrediction"
+        >
+          <i class="fas fa-magic"></i>
+          Obtener Recomendación IA
+        </button>
+
+        <button 
+          class="btn btn-secondary btn-large" 
+          (click)="cancelPrediction()"
+          *ngIf="isLoadingPrediction"
+        >
+          <i class="fas fa-times"></i>
+          Cancelar (No consumir créditos)
+        </button>
+      </section>
+
+      <!-- Resultados de la predicción -->
+      <section class="prediction-result" *ngIf="predictionResult">
+        <div class="probability-card" [class.high]="predictionResult.probability >= 0.5" [class.medium]="predictionResult.probability >= 0.3 && predictionResult.probability < 0.5" [class.low]="predictionResult.probability < 0.3">
+          <div class="probability-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <div class="probability-data">
+            <h3>Probabilidad de Ganar</h3>
+            <div class="probability-value">{{ (predictionResult.probability * 100).toFixed(1) }}%</div>
+            <p class="probability-label">
+              <span *ngIf="predictionResult.probability >= 0.7">✅ Alta probabilidad</span>
+              <span *ngIf="predictionResult.probability >= 0.5 && predictionResult.probability < 0.7">✓ Probabilidad favorable</span>
+              <span *ngIf="predictionResult.probability >= 0.3 && predictionResult.probability < 0.5">⚠ Probabilidad media</span>
+              <span *ngIf="predictionResult.probability < 0.3">❌ Baja probabilidad</span>
+            </p>
+          </div>
+        </div>
+
+        <div class="recommendation-card">
+          <h4><i class="fas fa-lightbulb"></i> Recomendación del Sistema</h4>
+          <div class="recommendation-text">{{ predictionResult.recommendation }}</div>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn btn-secondary" (click)="predictionResult = null">
+            <i class="fas fa-arrow-left"></i> Modificar Oferta
+          </button>
+          <button class="btn btn-success">
+            <i class="fas fa-check"></i> Confirmar Participación
+          </button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>

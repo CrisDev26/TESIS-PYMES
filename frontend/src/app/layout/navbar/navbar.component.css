@@ -1,0 +1,104 @@
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: #1e1e2d; /* color solicitado */
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.navbar__brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  padding: 0;
+  border-radius: 6px; /* para permitir hover suave */
+}
+
+.navbar__logo {
+  width: 140px;
+  height: 38px;
+  object-fit: contain;
+}
+
+.navbar__title {
+  font-weight: 700;
+  color: #f8fafc;
+}
+
+.navbar__spacer {
+  flex: 1;
+}
+
+.navbar__actions {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.profile-btn {
+  background: transparent;
+  border: none;
+  font-size: 1.5rem;
+  color: #f8fafc;
+  cursor: pointer;
+  padding: 6px; /* espacio para ver el hover */
+  border-radius: 6px;
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 8px);
+  min-width: 200px;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.08);
+  padding: 0.5rem;
+}
+
+.dropdown__item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 6px;
+  color: #374151;
+  text-decoration: none;
+  cursor: pointer;
+  background: transparent; /* sin fondo por defecto */
+  border: none; /* sin borde por defecto */
+  width: 100%;
+  text-align: left;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.dropdown__item:hover {
+  background: #f3f4f6;
+}
+
+/* Hover y focus visibles solo como efecto, sin fondo por defecto */
+.navbar__brand:focus-visible,
+.profile-btn:focus-visible,
+.dropdown__item:focus-visible {
+  outline: 2px solid #2563eb; /* azul accesible */
+  outline-offset: 2px;
+}
+
+.dropdown__divider {
+  height: 1px;
+  background: #e5e7eb;
+  margin: 0.35rem 0;
+}
+
+.dropdown__danger {
+  color: #b91c1c;
+}

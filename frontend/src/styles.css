@@ -1,0 +1,6 @@
+/* You can add global styles to this file, and also import other style files */
+
+/* Import custom colors BEFORE Bootstrap to override defaults */
+@import './custom-colors.scss';
+
+/* Bootstrap se inyecta desde angular.json para evitar duplicados */

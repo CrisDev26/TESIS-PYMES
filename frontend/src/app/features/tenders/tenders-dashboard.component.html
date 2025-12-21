@@ -1,0 +1,118 @@
+<app-navbar></app-navbar>
+<div class="dash">
+  <app-sidebar class="dash__sidebar"></app-sidebar>
+  <main class="dash__content">
+    <header class="dash__header">
+      <h1>Dashboard de Licitaciones</h1>
+      <p class="muted">Busca por palabra clave, categoría y presupuesto. Muestra resultados ficticios.</p>
+    </header>
+
+    <section class="filters">
+      <div class="toolbar">
+        <div class="tool tool--icon tool--grow">
+          <i class="fas fa-magnifying-glass" aria-hidden="true"></i>
+          <input type="text" [(ngModel)]="q" name="q" placeholder="Buscar por título, entidad o OCID" aria-label="Búsqueda" />
+          <button type="button" class="clear" *ngIf="q" (click)="clearQ()" aria-label="Limpiar búsqueda"><i class="fas fa-times"></i></button>
+        </div>
+
+        <div class="tool tool--icon" #catBox>
+          <i class="fas fa-tags" aria-hidden="true"></i>
+          <button type="button" class="dropdown__toggle" (click)="toggleCatMenu()" [attr.aria-expanded]="catOpen" aria-haspopup="listbox" aria-label="Categoría">
+            {{ category ? category : 'Todas las categorías' }}
+            <i class="fas fa-chevron-down dropdown__caret" aria-hidden="true"></i>
+          </button>
+          <div class="dropdown__menu" *ngIf="catOpen" role="listbox" aria-label="Lista de categorías">
+            <button type="button" class="dropdown__item" (click)="selectCategory('')" role="option" [attr.aria-selected]="!category">
+              Todas las categorías
+            </button>
+            <button type="button" class="dropdown__item" *ngFor="let c of categories" (click)="selectCategory(c)" role="option" [attr.aria-selected]="category===c">
+              {{ c }}
+            </button>
+          </div>
+        </div>
+
+        <div class="tool tool--icon tool--narrow">
+          <i class="fas fa-sack-dollar" aria-hidden="true"></i>
+          <input type="number" [(ngModel)]="minBudget" name="minBudget" min="0" placeholder="Mín. presupuesto" aria-label="Presupuesto mínimo" />
+        </div>
+        <div class="tool tool--icon tool--narrow">
+          <i class="fas fa-sack-dollar" aria-hidden="true"></i>
+          <input type="number" [(ngModel)]="maxBudget" name="maxBudget" min="0" placeholder="Máx. presupuesto" aria-label="Presupuesto máximo" />
+        </div>
+
+        <div class="pill-group">
+          <button type="button" class="pill" [class.is-active]="showOpen" (click)="toggleStatus('open')">
+            Abiertas <span class="count-mini">{{ openResults.length }}</span>
+          </button>
+          <button type="button" class="pill" [class.is-active]="showClosed" (click)="toggleStatus('closed')">
+            Cerradas <span class="count-mini">{{ closedResults.length }}</span>
+          </button>
+        </div>
+
+        <div class="spacer"></div>
+
+        <button type="button" class="btn ghost" (click)="resetFilters()">Restablecer</button>
+      </div>
+
+      <div class="chips" *ngIf="hasActiveFilters()">
+        <span class="chip" *ngIf="q">{{ q }} <button type="button" (click)="clearQ()" aria-label="Quitar"><i class="fas fa-times"></i></button></span>
+        <span class="chip" *ngIf="category">{{ category }} <button type="button" (click)="clearCategory()" aria-label="Quitar"><i class="fas fa-times"></i></button></span>
+        <span class="chip" *ngIf="minBudget != null">Min: {{ minBudget }} <button type="button" (click)="clearMin()" aria-label="Quitar"><i class="fas fa-times"></i></button></span>
+        <span class="chip" *ngIf="maxBudget != null">Max: {{ maxBudget }} <button type="button" (click)="clearMax()" aria-label="Quitar"><i class="fas fa-times"></i></button></span>
+      </div>
+    </section>
+
+    <section class="results">
+      <div class="results__group">
+        <h2>Abiertas <span class="count">{{ openResults.length }}</span></h2>
+        <div class="cards" *ngIf="openResults.length; else emptyOpen">
+          <article class="card card--open" *ngFor="let t of openResults">
+            <header class="card__header">
+              <span class="badge badge--open">Abierta</span>
+              <h3 class="card__title">{{ t.title }}</h3>
+            </header>
+            <ul class="meta">
+              <li><i class="fas fa-id-badge"></i> {{ t.id }}</li>
+              <li><i class="fas fa-building"></i> {{ t.buyer }}</li>
+              <li><i class="fas fa-sack-dollar"></i> {{ formatMoney(t.budget) }}</li>
+              <li><i class="fas fa-tags"></i> {{ t.category }}</li>
+              <li><i class="fas fa-calendar-plus"></i> Publicada: {{ t.publishedAt | date:'mediumDate' }}</li>
+              <li><i class="fas fa-calendar-check"></i> Cierra: {{ t.closesAt | date:'mediumDate' }}</li>
+            </ul>
+            <footer class="card__footer">
+              <button class="btn primary">Ver detalle</button>
+            </footer>
+          </article>
+        </div>
+        <ng-template #emptyOpen>
+          <div class="empty">Sin licitaciones abiertas para los filtros.</div>
+        </ng-template>
+      </div>
+
+      <div class="results__group">
+        <h2>Cerradas <span class="count">{{ closedResults.length }}</span></h2>
+        <div class="cards" *ngIf="closedResults.length; else emptyClosed">
+          <article class="card card--closed" *ngFor="let t of closedResults">
+            <header class="card__header">
+              <span class="badge badge--closed">Cerrada</span>
+              <h3 class="card__title">{{ t.title }}</h3>
+            </header>
+            <ul class="meta">
+              <li><i class="fas fa-id-badge"></i> {{ t.id }}</li>
+              <li><i class="fas fa-building"></i> {{ t.buyer }}</li>
+              <li><i class="fas fa-sack-dollar"></i> {{ formatMoney(t.budget) }}</li>
+              <li><i class="fas fa-tags"></i> {{ t.category }}</li>
+              <li><i class="fas fa-calendar-plus"></i> Publicada: {{ t.publishedAt | date:'mediumDate' }}</li>
+            </ul>
+            <footer class="card__footer">
+              <button class="btn">Ver detalle</button>
+            </footer>
+          </article>
+        </div>
+        <ng-template #emptyClosed>
+          <div class="empty">Sin licitaciones cerradas para los filtros.</div>
+        </ng-template>
+      </div>
+    </section>
+  </main>
+</div>

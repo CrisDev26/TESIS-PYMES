@@ -1,0 +1,12 @@
+# Dependencias opcionales para la parte de ML (modelo CatBoost)
+# Instálalas solo si vas a cargar/servir el modelo.
+
+# NumPy compatible con CatBoost 1.2.5
+numpy==1.26.4
+
+# Pandas 2.2.3 incluye ruedas para CPython recientes
+pandas==2.2.3
+
+# CatBoost 1.2.5 - Compatible con Python 3.11
+# Nota: Para Python 3.13, CatBoost puede no tener rueda disponible todavía
+catboost==1.2.5 ; python_version < "3.13"
