@@ -10,6 +10,7 @@ from api.v1 import (
     routes_participations,
     routes_cities,
     routes_auth,
+    routes_recommendations,
 )
 
 
@@ -78,3 +79,8 @@ app.include_router(
     tags=["participations"],
 )
 app.include_router(routes_auth.router)
+app.include_router(
+    routes_recommendations.router,
+    prefix="/api/v1/recommendations",
+    tags=["recommendations"],
+)

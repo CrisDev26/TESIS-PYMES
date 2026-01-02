@@ -62,6 +62,71 @@
       </div>
     </section>
 
+    <!-- NUEVA SECCIÓN: Recomendaciones del Día -->
+    <section class="daily-recommendations" *ngIf="!isLoadingRecommendations && dailyRecommendations?.has_recommendations">
+      <div class="recommendations-header">
+        <div class="header-left">
+          <i class="fas fa-sparkles"></i>
+          <div>
+            <h2>Recomendaciones del Día</h2>
+            <p class="muted">Actualizadas cada 24 horas • Próxima actualización: {{ dailyRecommendations.next_update | date:'short' }}</p>
+          </div>
+        </div>
+        <span class="ai-badge">
+          <i class="fas fa-robot"></i>
+          IA
+        </span>
+      </div>
+
+      <!-- Resumen General -->
+      <div class="summary-box">
+        <i class="fas fa-lightbulb"></i>
+        <p>{{ dailyRecommendations.summary }}</p>
+      </div>
+
+      <!-- Las 3 Licitaciones Recomendadas -->
+      <div class="recommended-cards">
+        <article class="card card--recommended" *ngFor="let tender of dailyRecommendations.tenders; let i = index">
+          <div class="recommendation-badge">
+            <i class="fas fa-star"></i>
+            Top {{ i + 1 }}
+          </div>
+
+          <header class="card__header">
+            <span class="badge badge--open">Abierta</span>
+            <h3 class="card__title">{{ tender.title }}</h3>
+          </header>
+
+          <ul class="meta">
+            <li><i class="fas fa-building"></i> {{ tender.buyer_name }}</li>
+            <li><i class="fas fa-sack-dollar"></i> {{ formatMoney(tender.budget_amount) }}</li>
+            <li><i class="fas fa-tags"></i> {{ tender.main_category }}</li>
+            <li><i class="fas fa-users"></i> {{ tender.number_of_tenderers }} competidores</li>
+            <li><i class="fas fa-calendar-check"></i> Cierra: {{ tender.tender_end_date | date:'mediumDate' }}</li>
+          </ul>
+
+          <footer class="card__footer">
+            <button class="btn primary">Ver detalle</button>
+            <button class="btn btn-ai" (click)="getAIRecommendation(tender)">
+              <i class="fas fa-robot"></i> Análisis IA
+            </button>
+          </footer>
+        </article>
+      </div>
+    </section>
+
+    <!-- Loading de recomendaciones -->
+    <section class="daily-recommendations loading" *ngIf="isLoadingRecommendations">
+      <i class="fas fa-spinner fa-spin"></i>
+      <p>Cargando recomendaciones del día...</p>
+    </section>
+
+    <!-- Sin recomendaciones -->
+    <section class="daily-recommendations empty" *ngIf="!isLoadingRecommendations && dailyRecommendations && !dailyRecommendations.has_recommendations">
+      <i class="fas fa-inbox"></i>
+      <p>{{ dailyRecommendations.message || 'No hay recomendaciones disponibles en este momento' }}</p>
+    </section>
+
     <section class="results">
       <div class="results__group">
         <h2>Abiertas <span class="count">{{ openResults.length }}</span></h2>
@@ -166,15 +231,18 @@
         <h4>Ingresa los datos de tu oferta</h4>
         <div class="form-group">
           <label for="bidAmount">Monto de oferta (USD)</label>
-          <input 
-            type="number" 
-            id="bidAmount" 
-            [(ngModel)]="bidAmount" 
-            [max]="selectedTender.budget_amount"
-            min="0"
-            step="0.01"
-            class="form-control"
-          />
+          <div class="input-with-currency">
+            <span class="currency-symbol">$</span>
+            <input 
+              type="text" 
+              id="bidAmount" 
+              [value]="bidAmountFormatted"
+              (input)="onBidAmountInput($event)"
+              placeholder="0,00"
+              class="form-control with-currency"
+              autocomplete="off"
+            />
+          </div>
           <small class="form-hint">
             Presupuesto referencial: {{ formatMoney(selectedTender.budget_amount) }}
           </small>
@@ -211,14 +279,24 @@
           Obtener Recomendación IA
         </button>
 
-        <button 
-          class="btn btn-secondary btn-large" 
-          (click)="cancelPrediction()"
-          *ngIf="isLoadingPrediction"
-        >
-          <i class="fas fa-times"></i>
-          Cancelar (No consumir créditos)
-        </button>
+        <!-- Barra de carga con porcentaje -->
+        <div class="loading-section" *ngIf="isLoadingPrediction">
+          <div class="loading-header">
+            <i class="fas fa-spinner fa-spin"></i>
+            <span class="loading-text">{{ loadingMessage }}</span>
+            <span class="loading-percentage">{{ loadingProgress.toFixed(0) }}%</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" [style.width.%]="loadingProgress"></div>
+          </div>
+          <button 
+            class="btn btn-secondary btn-large mt-1" 
+            (click)="cancelPrediction()"
+          >
+            <i class="fas fa-times"></i>
+            Cancelar (No consumir créditos)
+          </button>
+        </div>
       </section>
 
       <!-- Resultados de la predicción -->
