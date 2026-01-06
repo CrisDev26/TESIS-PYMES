@@ -6,6 +6,7 @@ import { Subscription } from 'rxjs';
 import { TenderService, TenderCreateRequest } from '../../services/tender.service';
 import { LocationService } from '../../services/location.service';
 import { ModalService } from '../../services/modal.service';
+import { CompanyService } from '../../services/company.service';
 
 @Component({
   selector: 'app-publish-tender',
@@ -65,17 +66,20 @@ export class PublishTenderComponent implements OnInit, OnDestroy {
   errorMessage = '';
   toastMessage = '';
   toastType: 'success' | 'error' | 'info' = 'info';
+  companyLoaded = false; // Para saber si se cargó la empresa o no
 
   constructor(
     private tenderService: TenderService,
     private locationService: LocationService,
     public modalService: ModalService,
-    private router: Router
+    private router: Router,
+    private companyService: CompanyService
   ) {}
 
   ngOnInit(): void {
     this.loadCountries();
     this.generateExternalId();
+    this.loadCurrentCompanyName();
   }
 
   ngOnDestroy(): void {
@@ -119,6 +123,36 @@ export class PublishTenderComponent implements OnInit, OnDestroy {
     } else {
       this.cities = [];
       this.tender.requirement_city_id = undefined;
+    }
+  }
+
+  loadCurrentCompanyName(): void {
+    const companyId = localStorage.getItem('companyId');
+    console.log('Company ID from localStorage:', companyId);
+    
+    if (companyId && companyId !== '0' && companyId !== 'null') {
+      const companyIdNum = parseInt(companyId);
+      console.log('Loading company with ID:', companyIdNum);
+      
+      this.companyService.getCompany(companyIdNum).subscribe({
+        next: (company) => {
+          console.log('Company loaded:', company);
+          // Usar trade_name si existe, sino legal_name
+          this.tender.buyer_name = company.trade_name || company.legal_name;
+          this.companyLoaded = true;
+          console.log('Buyer name set to:', this.tender.buyer_name);
+        },
+        error: (err) => {
+          console.error('Error al cargar información de la empresa:', err);
+          this.companyLoaded = false;
+          // No mostrar error, simplemente permitir edición manual
+          this.tender.buyer_name = '';
+        }
+      });
+    } else {
+      console.warn('No company ID found or invalid company ID');
+      this.companyLoaded = false;
+      this.tender.buyer_name = '';
     }
   }
 

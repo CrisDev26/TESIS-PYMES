@@ -17,6 +17,17 @@ def list_companies(db: Session = Depends(get_db)):
     return companies
 
 
+@router.get("/{company_id}", response_model=CompanyRead)
+def get_company(company_id: int, db: Session = Depends(get_db)):
+    company = db.query(Company).filter(Company.id == company_id).first()
+    if not company:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Company with id {company_id} not found"
+        )
+    return company
+
+
 @router.post("/", response_model=CompanyRead, status_code=status.HTTP_201_CREATED)
 def create_company(payload: CompanyCreate, db: Session = Depends(get_db)):
     existing = db.query(Company).filter(Company.tax_id == payload.tax_id).one_or_none()

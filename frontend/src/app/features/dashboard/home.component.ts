@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { NavbarComponent } from '../../layout/navbar/navbar.component';
 import { SidebarComponent } from '../../layout/sidebar/sidebar.component';
+import { formatMonto, formatMontoConSimbolo } from '../../shared/utils/format.utils';
 
 interface TenderItem {
   id: number;
@@ -139,95 +140,49 @@ export class HomeComponent implements OnInit {
   }
 
   formatMoney(v: number) {
-    try { 
-      return new Intl.NumberFormat('es-EC', { 
-        style: 'currency', 
-        currency: 'USD',
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2 
-      }).format(v); 
-    } catch { 
-      return v.toString(); 
-    }
+    return formatMontoConSimbolo(v);
   }
 
   // Formatear número sin símbolo de moneda (para mostrar valores)
   formatNumber(v: number) {
-    try { 
-      return new Intl.NumberFormat('es-EC', { 
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2 
-      }).format(v); 
-    } catch { 
-      return v.toString(); 
-    }
+    return formatMonto(v);
   }
 
-  // Formatear input mientras el usuario escribe
-  onBidAmountInput(event: Event) {
-    const input = event.target as HTMLInputElement;
-    let value = input.value;
+  // Formatear el monto cuando pierde el foco o presiona Enter
+  formatearMonto() {
+    console.log('🎯 Formatear - Valor crudo:', this.valorCrudo);
     
-    // Guardar posición del cursor antes de formatear
-    const cursorPos = input.selectionStart || 0;
-    const oldValue = value;
+    // Extraer solo dígitos
+    const digitsOnly = this.valorCrudo.toString().replace(/\D/g, '');
     
-    // Remover todo excepto números y el separador decimal
-    // Permitir punto o coma como separador decimal
-    value = value.replace(/[^\d.,]/g, '');
+    console.log('🔢 Solo dígitos:', digitsOnly);
     
-    // Contar cuántos separadores hay antes del cursor para ajustar posición
-    const separatorsBeforeCursor = (oldValue.substring(0, cursorPos).match(/[.,]/g) || []).length;
-    
-    // Convertir comas a puntos para procesar
-    value = value.replace(/,/g, '.');
-    
-    // Asegurar solo un punto decimal
-    const parts = value.split('.');
-    if (parts.length > 2) {
-      // Mantener la parte entera y solo los primeros 2 decimales
-      value = parts[0] + '.' + parts.slice(1).join('').substring(0, 2);
-    } else if (parts.length === 2) {
-      // Limitar a 2 decimales
-      value = parts[0] + '.' + parts[1].substring(0, 2);
+    if (!digitsOnly) {
+      this.bidAmount = 0;
+      this.valorCrudo = '';
+      this.valorFormateado = '0,00';
+      console.log('❌ Campo vacío');
+      return;
     }
     
     // Convertir a número
-    const numValue = parseFloat(value) || 0;
-    this.bidAmount = numValue;
+    this.bidAmount = parseFloat(digitsOnly) || 0;
     
-    // Formatear para mostrar con separadores de miles
-    if (value && value !== '0') {
-      // Separar parte entera y decimal
-      const valueParts = value.split('.');
-      const integerPart = valueParts[0] || '0';
-      const decimalPart = valueParts[1] || '';
-      
-      // Formatear parte entera con separadores de miles (puntos)
-      const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
-      
-      // Construir valor formateado
-      let formatted = formattedInteger;
-      if (value.includes('.')) {
-        formatted += ',' + decimalPart;
-      }
-      
-      this.bidAmountFormatted = formatted;
-      input.value = formatted;
-      
-      // Calcular nueva posición del cursor
-      const newSeparatorsBeforeCursor = (formatted.substring(0, cursorPos).match(/\./g) || []).length;
-      const diff = newSeparatorsBeforeCursor - separatorsBeforeCursor;
-      const newCursorPos = Math.min(cursorPos + diff, formatted.length);
-      
-      // Restaurar posición del cursor
-      setTimeout(() => {
-        input.setSelectionRange(newCursorPos, newCursorPos);
-      }, 0);
-    } else {
-      this.bidAmountFormatted = '';
-      input.value = '';
-    }
+    console.log('💰 Valor numérico:', this.bidAmount);
+    
+    // Formatear
+    this.valorFormateado = formatMonto(this.bidAmount);
+    
+    console.log('✨ Valor formateado:', this.valorFormateado);
+    
+    // Actualizar el input con el valor formateado
+    this.valorCrudo = this.valorFormateado;
+  }
+
+  // Seleccionar todo al hacer foco (para fácil edición)
+  onBidAmountFocus(event: Event) {
+    const input = event.target as HTMLInputElement;
+    input.select();
   }
 
   // UI helpers para el nuevo panel
@@ -261,7 +216,8 @@ export class HomeComponent implements OnInit {
   showAIModal = false;
   selectedTender: TenderItem | null = null;
   bidAmount = 0;
-  bidAmountFormatted = '';
+  valorCrudo = ''; // Solo dígitos sin formato
+  valorFormateado = '0,00'; // Valor con formato de visualización
   contractStartDate = '';
   contractEndDate = '';
   isLoadingPrediction = false;
@@ -276,11 +232,8 @@ export class HomeComponent implements OnInit {
     this.selectedTender = tender;
     this.showAIModal = true;
     this.bidAmount = tender.budget_amount * 0.95; // Sugerir 5% menos que presupuesto
-    this.bidAmountFormatted = new Intl.NumberFormat('es-EC', {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-      useGrouping: true
-    }).format(this.bidAmount);
+    this.valorFormateado = formatMonto(this.bidAmount);
+    this.valorCrudo = this.valorFormateado; // Mostrar formateado inicialmente
     this.predictionResult = null;
     
     // Calcular fechas sugeridas (contrato de 1 año desde hoy)
@@ -298,7 +251,9 @@ export class HomeComponent implements OnInit {
     this.isLoadingPrediction = false;
     this.loadingProgress = 0;
     this.loadingMessage = '';
-    this.bidAmountFormatted = '';
+    this.valorFormateado = '0,00';
+    this.valorCrudo = '';
+    this.bidAmount = 0;
   }
 
   cancelPrediction() {

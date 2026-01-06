@@ -57,7 +57,7 @@ export class CompanyService {
   }
 
   getCompany(id: number): Observable<Company> {
-    return this.http.get<Company>(`${this.apiUrl}/${id}/`);
+    return this.http.get<Company>(`${this.apiUrl}/${id}`);
   }
 
   createCompany(company: CompanyCreate): Observable<Company> {
@@ -65,11 +65,11 @@ export class CompanyService {
   }
 
   updateCompany(id: number, company: Partial<CompanyCreate>): Observable<Company> {
-    return this.http.put<Company>(`${this.apiUrl}/${id}/`, company);
+    return this.http.put<Company>(`${this.apiUrl}/${id}`, company);
   }
 
   deleteCompany(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.apiUrl}/${id}/`);
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
   // Buscar empresa por RUC

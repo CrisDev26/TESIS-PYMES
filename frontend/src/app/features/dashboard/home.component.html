@@ -3,7 +3,7 @@
   <app-sidebar class="dash__sidebar"></app-sidebar>
   <main class="dash__content">
     <header class="dash__header">
-      <h1>Inicio - Licitaciones Disponibles</h1>
+      <h1>Licitaciones Disponibles</h1>
       <p class="muted">Busca por palabra clave, categoría y presupuesto. Mostrando datos reales de SERCOP Ecuador.</p>
     </header>
 
@@ -196,7 +196,7 @@
 <div class="modal-overlay" *ngIf="showAIModal" (click)="closeAIModal()">
   <div class="modal-content" (click)="$event.stopPropagation()">
     <header class="modal-header">
-      <h2><i class="fas fa-robot"></i> Recomendación IA - CatBoost + GPT</h2>
+      <h2><i class="fas fa-robot"></i> Recomendación IA</h2>
       <button class="btn-close" (click)="closeAIModal()" aria-label="Cerrar">
         <i class="fas fa-times"></i>
       </button>
@@ -236,9 +236,10 @@
             <input 
               type="text" 
               id="bidAmount" 
-              [value]="bidAmountFormatted"
-              (input)="onBidAmountInput($event)"
-              placeholder="0,00"
+              [(ngModel)]="valorCrudo"
+              (blur)="formatearMonto()"
+              (keydown.enter)="formatearMonto()"
+              placeholder="Escribe el monto"
               class="form-control with-currency"
               autocomplete="off"
             />
@@ -301,33 +302,64 @@
 
       <!-- Resultados de la predicción -->
       <section class="prediction-result" *ngIf="predictionResult">
-        <div class="probability-card" [class.high]="predictionResult.probability >= 0.5" [class.medium]="predictionResult.probability >= 0.3 && predictionResult.probability < 0.5" [class.low]="predictionResult.probability < 0.3">
-          <div class="probability-icon">
-            <i class="fas fa-chart-line"></i>
+        <!-- Encabezado con badge de IA -->
+        <div class="prediction-header">
+          <div class="header-left">
+            <i class="fas fa-robot"></i>
+            <div>
+              <h3>Análisis Predictivo Completado</h3>
+            </div>
           </div>
-          <div class="probability-data">
-            <h3>Probabilidad de Ganar</h3>
-            <div class="probability-value">{{ (predictionResult.probability * 100).toFixed(1) }}%</div>
-            <p class="probability-label">
-              <span *ngIf="predictionResult.probability >= 0.7">✅ Alta probabilidad</span>
+          <span class="ai-badge-result">
+            <i class="fas fa-check-circle"></i>
+            Resultado IA
+          </span>
+        </div>
+
+        <!-- Tarjeta de probabilidad con animación -->
+        <div class="probability-card-modern" 
+             [class.high]="predictionResult.probability >= 0.7" 
+             [class.medium]="predictionResult.probability >= 0.5 && predictionResult.probability < 0.7" 
+             [class.low]="predictionResult.probability < 0.5">
+          <div class="probability-icon-modern">
+            <i class="fas fa-chart-line" *ngIf="predictionResult.probability >= 0.7"></i>
+            <i class="fas fa-chart-bar" *ngIf="predictionResult.probability >= 0.5 && predictionResult.probability < 0.7"></i>
+            <i class="fas fa-exclamation-triangle" *ngIf="predictionResult.probability < 0.5"></i>
+          </div>
+          <div class="probability-content">
+            <h4>Probabilidad de Ganar</h4>
+            <div class="probability-value-modern">{{ (predictionResult.probability * 100).toFixed(1) }}%</div>
+            <div class="probability-bar">
+              <div class="probability-fill" [style.width.%]="predictionResult.probability * 100"></div>
+            </div>
+            <p class="probability-status">
+              <span *ngIf="predictionResult.probability >= 0.7">🎯 Alta probabilidad de éxito</span>
               <span *ngIf="predictionResult.probability >= 0.5 && predictionResult.probability < 0.7">✓ Probabilidad favorable</span>
-              <span *ngIf="predictionResult.probability >= 0.3 && predictionResult.probability < 0.5">⚠ Probabilidad media</span>
-              <span *ngIf="predictionResult.probability < 0.3">❌ Baja probabilidad</span>
+              <span *ngIf="predictionResult.probability < 0.5">⚠️ Baja probabilidad - Considerar ajustar oferta</span>
             </p>
           </div>
         </div>
 
-        <div class="recommendation-card">
-          <h4><i class="fas fa-lightbulb"></i> Recomendación del Sistema</h4>
-          <div class="recommendation-text">{{ predictionResult.recommendation }}</div>
+        <!-- Tarjeta de recomendación con estilo mejorado -->
+        <div class="recommendation-card-modern">
+          <div class="recommendation-icon">
+            <i class="fas fa-lightbulb"></i>
+          </div>
+          <div class="recommendation-content">
+            <h4>Recomendación Inteligente</h4>
+            <div class="recommendation-text-modern">{{ predictionResult.recommendation }}</div>
+          </div>
         </div>
 
-        <div class="action-buttons">
-          <button class="btn btn-secondary" (click)="predictionResult = null">
-            <i class="fas fa-arrow-left"></i> Modificar Oferta
+        <!-- Botones de acción mejorados -->
+        <div class="action-buttons-modern">
+          <button class="btn btn-outline" (click)="predictionResult = null">
+            <i class="fas fa-arrow-left"></i> 
+            Modificar Oferta
           </button>
-          <button class="btn btn-success">
-            <i class="fas fa-check"></i> Confirmar Participación
+          <button class="btn btn-success-modern">
+            <i class="fas fa-paper-plane"></i> 
+            Confirmar Participación
           </button>
         </div>
       </section>
